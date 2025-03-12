@@ -12,7 +12,7 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Products",
       },
-      quantity: {type:Number},
+      quantity: { type: Number },
     },
   ],
   status: {
@@ -20,6 +20,7 @@ const orderSchema = new mongoose.Schema({
     default: "pending",
     enum: ["pending", "rejected", "received"],
   },
+  date: { type: Date ,default:Date.now()},
 });
 const orders = mongoose.model("orders", orderSchema);
 module.exports = orders;

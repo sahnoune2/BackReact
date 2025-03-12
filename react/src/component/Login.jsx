@@ -1,6 +1,33 @@
-import React from "react";
+import axios from "axios";
+import React, { useState } from "react";
+import { useNavigate, useRevalidator } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export const Login = () => {
+  const [user, setUser] = useState({ email: "", password: "" });
+  const { revalidate } = useRevalidator();
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post("http://localhost:5000/signIn", user);
+
+      console.log(response);
+      if (response.status === 200) {
+        localStorage.setItem("token", response.data.token);
+
+        navigate("/");
+        revalidate();
+      }
+    } catch (error) {
+      console.log(error);
+      error?.response?.data?.errors?.forEach((el) => toast.error(el.msg));
+    }
+  };
+  console.log(user);
+
   return (
     <div>
       <section className="bg-gray-50 dark:bg-gray-900">
@@ -30,6 +57,9 @@ export const Login = () => {
                     Your email
                   </label>
                   <input
+                    onChange={(e) =>
+                      setUser({ ...user, email: e.target.value })
+                    }
                     type="email"
                     name="email"
                     id="email"
@@ -46,6 +76,9 @@ export const Login = () => {
                     Password
                   </label>
                   <input
+                    onChange={(e) =>
+                      setUser({ ...user, password: e.target.value })
+                    }
                     type="password"
                     name="password"
                     id="password"
@@ -82,8 +115,9 @@ export const Login = () => {
                   </a>
                 </div>
                 <button
+                  onClick={handleLogin}
                   type="submit"
-                  className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                  className="w-full text-black bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                 >
                   Sign in
                 </button>

@@ -4,6 +4,8 @@ import {
   Route,
   RouterProvider,
   Routes,
+  useLoaderData,
+  useRevalidator,
 } from "react-router-dom";
 import "./App.css";
 import { Footer } from "./component/Footer";
@@ -23,10 +25,11 @@ import { Cart } from "./component/Cart";
 import ListProducts from "./component/ListProducts";
 import { FormProduct } from "./component/dashboard/FormProduct";
 import axios from "axios";
-import { getOneProduct, getProducts } from "./Api";
+import { getCurrent, getOneProduct, getProducts } from "./Api";
 import { ToastContainer } from "react-toastify";
-
-
+import Animation from "./component/Animation";
+import { ValidationCode } from "./component/ValidationCode";
+import { ProtectedRoute } from "./component/ProtectedRoute";
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -47,13 +50,15 @@ function App() {
             {" "}
             <Outlet />{" "}
           </>{" "}
-          <Footer />{" "}
-        <ToastContainer   position="top-right"   />
+          <Footer /> <ToastContainer position="top-right" />
         </>
       ),
+      loader: getCurrent,
       children: [
         { path: "/", element: <Hero /> },
+        { path: "/code", element: <ValidationCode /> },
         { path: "/about", element: <About /> },
+        { path: "/cards", element: <Animation />, loader: getProducts },
         { path: "contact", element: <Contact /> },
         { path: "/products", element: <Products />, loader: getProducts },
         {
@@ -62,11 +67,19 @@ function App() {
           loader: getOneProduct,
         },
         { path: "/cart", element: <Cart /> },
-        { path: "/login", element: <Login /> },
+        {
+          path: "/login",
+          element: <Login />,
+        },
         { path: "/signup", element: <SignUp /> },
         {
           path: "/admin",
-          element: <Dashboard />,
+          element: (
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          ),
+          loader: getCurrent,
           children: [
             {
               index: true,

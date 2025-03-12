@@ -1,6 +1,52 @@
-import React from "react";
+import axios from "axios";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function SignUp() {
+  //another way to get the values inside a form,another form other than the useref() one
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    phone: 0,
+    address: "",
+    password: "",
+  });
+  const [confirm, setConfirm] = useState("");
+
+  const navigate = useNavigate(); // this one to navigate between pages easily
+
+  //always use (e) whenever u r using a form
+  const handleRegister = async (e) => {
+    e.preventDefault(); // to prevent the default action og yhe form
+    try {
+      if (
+        !newUser.name ||
+        !newUser.email ||
+        !newUser.phone ||
+        !newUser.address ||
+        !newUser.password
+      ) {
+        toast.error("fill ur form "); //this one is a toast,install it and enjoy
+      } else if (confirm !== newUser.password) {
+        toast.error("password not identical");
+      } else {
+        const response = await axios.post(
+          "http://localhost:5000/email",
+          newUser
+        );
+        //the newuser above is the body ,that place after the link is what u r going to send in the body
+        if (response.status === 200) {
+          toast.success("please check ur email to validate ur account");
+          navigate("/code");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      error.response.data.errors.forEach((el) => toast.error(el.msg)); // focus on this one,cuz when u get error from auth and another error from this code,then errors will become a table
+    }
+  };
+
   return (
     <div>
       <section className="bg-gray-50 dark:bg-gray-900">
@@ -24,15 +70,76 @@ function SignUp() {
               <form className="space-y-4 md:space-y-6" action="#">
                 <div>
                   <label
+                    htmlFor="name"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    name
+                  </label>
+                  <input
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, name: e.target.value })
+                    }
+                    type="text"
+                    name="name"
+                    id="name"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="name@company.com"
+                    required=""
+                  />
+                </div>
+
+                <div>
+                  <label
                     htmlFor="email"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Your email
                   </label>
                   <input
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, email: e.target.value })
+                    }
                     type="email"
                     name="email"
                     id="email"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="name@company.com"
+                    required=""
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    phone number
+                  </label>
+                  <input
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, phone: e.target.value })
+                    }
+                    type="number"
+                    name="phone"
+                    id="phone"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="name@company.com"
+                    required=""
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="address"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    address
+                  </label>
+                  <input
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, address: e.target.value })
+                    }
+                    type="text"
+                    name="address"
+                    id="address"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="name@company.com"
                     required=""
@@ -46,6 +153,9 @@ function SignUp() {
                     Password
                   </label>
                   <input
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, password: e.target.value })
+                    }
                     type="password"
                     name="password"
                     id="password"
@@ -62,6 +172,7 @@ function SignUp() {
                     Confirm password
                   </label>
                   <input
+                    onChange={(e) => setConfirm(e.target.value)}
                     type="confirm-password"
                     name="confirm-password"
                     id="confirm-password"
@@ -96,8 +207,9 @@ function SignUp() {
                   </div>
                 </div>
                 <button
+                  onClick={handleRegister}
                   type="submit"
-                  className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                  className="w-full text-black bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                 >
                   Create an account
                 </button>

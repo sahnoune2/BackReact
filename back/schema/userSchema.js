@@ -7,18 +7,25 @@ const userSchema = new mongoose.Schema({
   phone: { type: Number, required: true },
   address: { type: String, required: true },
   role: { type: String, default: "client", enum: ["admin", "client"] },
-  panier: [
-    {
-      product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Products",
+  panier: {
+    type: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Products",
+        },
+        quantity: Number,
       },
-      quantity: Number,
+    ],
+    default: [],
+  },
+  orders: {type:[
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "orders",
     },
-  ],
-  orders:[]
+  ],default:[]},
 });
-
 
 collectionUser = mongoose.model("users", userSchema);
 module.exports = collectionUser;

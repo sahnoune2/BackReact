@@ -22,7 +22,7 @@ exports.emailValidation = async (req, res) => {
     const userFound = await users.findOne({ email });
 
     if (userFound) {
-      res.status(400).send({ msg: "u already have an account" });
+      res.status(400).send({ errors: [{ msg: "already have an account" }] });
     } else {
       const code = generaterandomecode();
 
@@ -101,12 +101,14 @@ exports.signIn = async (req, res) => {
     const { email, password } = req.body;
     const userFound = await users.findOne({ email });
     if (!userFound) {
-      res.status(400).send({ msg: "u dont have an account,sign up " });
+      res
+        .status(400)
+        .send({ errors: [{ msg: "u dont have an account,sign up " }] });
     } else {
       const match = bcrypt.compareSync(password, userFound.password);
 
       if (!match) {
-        res.status(400).send({ msg: "incorrect password" });
+        res.status(400).send({ errors: [{ msg: "incorrect password" }] });
       } else {
         const token = jwt.sign(
           { id: userFound._id, name: userFound.name, role: userFound.role },
@@ -132,34 +134,32 @@ exports.getCurrent = (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const userID = req.body.id;
-  const{oldpassword,newpassword}=req.body
+  const { oldpassword, newpassword } = req.body;
 
   try {
     const userFound = await users.findById(userID);
     if (!userFound) {
       res.status(400).send({ msg: "user not found" });
     } else {
-      if(oldpassword && newpassword){
-        const salt=10
+      if (oldpassword && newpassword) {
+        const salt = 10;
         const match = bcrypt.compareSync(oldpassword, userFound.password);
-        if(match){
-          const hpassword=bcrypt.hashSync(newpassword,salt)
-          userFound.password=hpassword
-          await userFound.save()
+        if (match) {
+          const hpassword = bcrypt.hashSync(newpassword, salt);
+          userFound.password = hpassword;
+          await userFound.save();
           res.status(200).send({ msg: "updated password" });
-        }else{
-          res.status(400).send({msg:"wrong password"})
+        } else {
+          res.status(400).send({ msg: "wrong password" });
         }
+      } else {
+        const update = await users.findByIdAndUpdate(
+          userID,
+          { ...req.body },
+          { new: true }
+        );
+        res.status(200).send({ msg: "update done" });
       }
-      else{
-const update = await users.findByIdAndUpdate(
-  userID,
-  { ...req.body },
-  { new: true }
-);
-res.status(200).send({ msg: "update done" });
-      }
-      
     }
   } catch (error) {
     res.status(500).send({ msg: "error while trying to update the user" });

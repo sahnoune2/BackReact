@@ -31,7 +31,7 @@ const productRouter = express.Router();
 
 userRouter.post("/addUser", signUp);
 userRouter.post("/signIn", signInValidation, validation, signIn);
-userRouter.post("/auth", isAuth, getCurrent);
+userRouter.get("/auth", isAuth, getCurrent);
 userRouter.post("/email", signUpValidation, validation, emailValidation);
 userRouter.put("/updateUser", isAuth, updateUser);
 

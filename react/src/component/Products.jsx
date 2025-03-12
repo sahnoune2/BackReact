@@ -5,7 +5,7 @@ import ReactStars from "react-stars";
 
 function Products({ list }) {
   const listProducts=useLoaderData()
-  console.log(listProducts);
+  console.log("first log:",listProducts);
   return (
     <div className="flex gap-20 flex-wrap px-24">
       {listProducts.map((product) => (

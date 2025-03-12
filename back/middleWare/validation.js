@@ -19,7 +19,7 @@ const validation = (req, res, next) => {
   if (errors.isEmpty()) {
     next();
   } else {
-    res.status(400).send({ msg: "there is sth wrong", errors });
+    res.status(400).send({ msg: "there is sth wrong", errors: errors.array() });
   }
 };
 module.exports = { signInValidation, signUpValidation, validation };
