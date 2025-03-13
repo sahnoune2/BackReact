@@ -45,12 +45,8 @@ function App() {
       element: (
         <>
           {" "}
-          <Header />{" "}
-          <>
-            {" "}
-            <Outlet />{" "}
-          </>{" "}
-          <Footer /> <ToastContainer position="top-right" />
+          <Header /> <Outlet /> <Footer />{" "}
+          <ToastContainer position="top-right" />
         </>
       ),
       loader: getCurrent,
@@ -66,7 +62,7 @@ function App() {
           element: <SingleProduct />,
           loader: getOneProduct,
         },
-        { path: "/cart", element: <Cart /> },
+        { path: "/cart", element: <Cart />, loader: getCurrent },
         {
           path: "/login",
           element: <Login />,

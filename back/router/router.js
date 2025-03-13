@@ -6,6 +6,7 @@ const {
   getCurrent,
   emailValidation,
   updateUser,
+  logOut,
 } = require("../control/control");
 const isAuth = require("../middleWare/isAuth");
 const {
@@ -34,14 +35,15 @@ userRouter.post("/signIn", signInValidation, validation, signIn);
 userRouter.get("/auth", isAuth, getCurrent);
 userRouter.post("/email", signUpValidation, validation, emailValidation);
 userRouter.put("/updateUser", isAuth, updateUser);
+userRouter.post("/logout", logOut);
 
 productRouter.post("/add", addProduct);
 productRouter.get("/list", getProduct);
 productRouter.get("/One/:id", getOneProduct);
 productRouter.delete("/del/:id", deleteOneProduct);
-productRouter.post("/addPanier", addPanier);
+productRouter.post("/addPanier", isAuth, addPanier);
 productRouter.post("/addOrder", isAuth, addOrder);
-productRouter.delete("/deleteOne", isAuth, removeFromPanier);
+productRouter.delete("/deleteOne/:productID", isAuth, removeFromPanier);
 productRouter.delete("/deleteAll", isAuth, clearPanier);
 productRouter.put("/updateQuantity", updateQuantity);
 

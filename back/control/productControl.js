@@ -47,16 +47,28 @@ const deleteOneProduct = async (req, res) => {
 };
 
 const addPanier = async (req, res) => {
-  const { userID, productID, quantity } = req.body;
+  const { productID, quantity } = req.body;
 
   try {
-    const userFound = await users.findById(userID);
-    console.log(userFound);
+    const userFound = req.user;
+    console.log("userfound is:", userFound);
     const productFound = await Products.findById(productID);
-    console.log(productFound);
+    console.log("productfound is :", productFound);
 
     if (userFound && productFound) {
-      userFound.panier.push({ product: productFound._id, quantity });
+      const exist = userFound.panier.find(
+        (el) => el.product._id.toString() === productID
+      );
+      if (exist) {
+        userFound.panier = userFound.panier.map((el) =>
+          el.product._id.toString() === productID
+            ? { ...el, quantity: quantity }
+            : el
+        );
+      } else {
+        userFound.panier.push({ product: productFound._id, quantity });
+      }
+
       await userFound.save();
       res.status(200).send({ msg: "product added to panier " });
     } else {
@@ -95,7 +107,6 @@ const addOrder = async (req, res) => {
       await order.save();
       await order.populate("userID");
 
-      
       await order.populate("panier.product");
       res
         .status(200)
@@ -106,25 +117,19 @@ const addOrder = async (req, res) => {
   }
 };
 const removeFromPanier = async (req, res) => {
-  const { userID, productID } = req.body;
-
+  const { productID } = req.params;
+  console.log(req.params);
   try {
-    const userFound = await users.findById(userID);
+    const userFound = req.user;
+    console.log(userFound);
     if (!userFound) {
       return res.status(400).send({ msg: "User not found" });
     }
-    const productInPanier = userFound.panier.find(
-      (item) => item.product.toString() === productID
-    );
-    if (!productInPanier) {
-      return res.status(400).send({ msg: "Product not found in panier" });
-    }
-
-    const result = await users.updateOne(
-      { _id: userID },
-      { $pull: { panier: { product: productID } } }
+    userFound.panier = userFound.panier.filter(
+      (item) => item.product._id.toString() !== productID
     );
 
+    userFound.save();
     res.status(200).send({ msg: "Product removed from panier" });
   } catch (error) {
     res.status(500).send({ msg: "Error while removing from panier", error });
@@ -155,7 +160,6 @@ const updateQuantity = async (req, res) => {
     const productFound = await Products.findById(product);
 
     if (productFound && userFound) {
-      
       await userFound.save();
       res.status(200).send({ msg: "quantity updated" });
     } else {

@@ -1,11 +1,33 @@
 import React from "react";
 import { FaCartArrowDown } from "react-icons/fa";
 import { Link, useLoaderData, useRevalidator } from "react-router-dom";
+import { logOut } from "../Api";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export const Header = () => {
   const connectedUser = useLoaderData(); // this cuz u have the loader on the tage
   const { revalidate } = useRevalidator(); // this one to force the component to refresh itself
   console.log(connectedUser);
+  const apiUrl = "http://localhost:5000";
+ 
+  const logOut = async () => {
+    try {
+      const response = await axios.post(
+        `${apiUrl}/logout`,
+        {},
+        { withCredentials: true }
+      );
+      console.log("cookies logging out :", response);
+      if (response.status === 200) {
+        toast.success(response.data.msg);
+        revalidate();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -94,13 +116,12 @@ export const Header = () => {
               </Link>
             </li>
             <li>
-
               {/* again,we use the ? to wait for the connecteduser to come to use otherwise it will undefined */}
               {connectedUser ? (
                 <Link
                   onClick={() => {
-                    localStorage.removeItem("token");
-                    revalidate();
+                    // localStorage.removeItem("token");
+                    logOut();
                   }}
                   to={"/login"}
                   className="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
@@ -129,6 +150,8 @@ export const Header = () => {
                 to={"/cart"}
                 className="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
               >
+                {" "}
+                <span>{connectedUser.panier.length}</span>
                 <FaCartArrowDown className="text-[2rem]" />
               </Link>
             </li>

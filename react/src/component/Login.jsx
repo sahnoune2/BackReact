@@ -12,11 +12,13 @@ export const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:5000/signIn", user);
+      const response = await axios.post("http://localhost:5000/signIn", user, {
+        withCredentials: true,
+      }); 
 
-      console.log(response);
+      console.log("login response:", response);
       if (response.status === 200) {
-        localStorage.setItem("token", response.data.token);
+        // localStorage.setItem("token", response.data.token);
 
         navigate("/");
         revalidate();

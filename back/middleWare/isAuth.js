@@ -3,11 +3,15 @@ const users = require("../schema/userSchema");
 
 const isAuth = async (req, res, next) => {
   try {
-    const token = req.header("token");
+    // const token = req.header("token");LOCALSTORAGE
+    const token = req.cookies.token;
+
+    console.log(token);
     const secretKey = "abc123";
     const verify = jwt.verify(token, secretKey);
-    console.log(verify);
-    const user = await users.findById(verify.id);
+
+    const user = await users.findById(verify.id).populate("panier.product");
+
     if (user) {
       req.user = user;
       next();

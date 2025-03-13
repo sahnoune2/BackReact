@@ -1,17 +1,42 @@
+import axios from "axios";
 import React, { useEffect } from "react";
 import { CiTrash } from "react-icons/ci";
-import { Link } from "react-router-dom";
+import { Link, useLoaderData, useRevalidator } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export const Cart = ({ cart, setCart }) => {
-  useEffect(() => {
-    console.log("Cart component: Received cart:", cart);
-  }, [cart]);
+  const { panier } = useLoaderData();
+  const apiUrl = "http://localhost:5000";
+  const { revalidate } = useRevalidator();
 
-  const change = (index) => {
-    const updated = [...cart];
-    updated.splice(index, 1);
-    setCart(updated);
+  // useEffect(() => {
+  //   console.log("Cart component: Received cart:", cart);
+  // }, [cart]);
+
+  // const change = (index) => {
+  //   const updated = [...cart];
+  //   updated.splice(index, 1);
+  //   setCart(updated);
+  // };
+
+  const deleteFromPanier = async (id) => {
+    console.log(id);
+    try {
+      const response = await axios.delete(
+        `${apiUrl}/deleteOne/${id}`,
+
+        { withCredentials: true }
+      );
+      console.log(response);
+      if (response.status === 200) {
+        toast.success("product deleted successfully from panier");
+        revalidate();
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+
   return (
     <section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
       <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
@@ -21,7 +46,7 @@ export const Cart = ({ cart, setCart }) => {
 
         <div className="mt-6 sm:mt-8 md:gap-6  lg:flex lg:items-start xl:gap-8 ">
           <div style={{ width: "70%" }}>
-            {cart.map((product, index) => (
+            {panier.map((product, index) => (
               <div className="mx-auto w-full   lg:max-w-2xl xl:max-w-4xl">
                 <div className="space-y-6  ">
                   <div className="rounded-lg border w-[100%] border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 md:p-6">
@@ -29,7 +54,7 @@ export const Cart = ({ cart, setCart }) => {
                       <Link to={"/prod/" + product.id}>
                         <img
                           className="h-20 w-20 dark:hidden"
-                          src={product.images[0]}
+                          src={product.product.images[0]}
                           alt="imac image"
                         />
                       </Link>
@@ -96,7 +121,7 @@ export const Cart = ({ cart, setCart }) => {
                         </div>
                         <div className="text-end md:order-4 md:w-32">
                           <p className="text-base font-bold text-gray-900 dark:text-white">
-                            ${product.price * product.quantity}
+                            ${product.product.price * product.quantity}
                           </p>
                         </div>
                       </div>
@@ -105,11 +130,13 @@ export const Cart = ({ cart, setCart }) => {
                           href="#"
                           className="text-base font-medium text-gray-900 hover:underline dark:text-white"
                         >
-                          {product.name}
+                          {product.product.title}
                         </a>
                         <div className="flex items-center gap-4">
                           <button
-                            onClick={() => change(index)}
+                            onClick={() =>
+                              deleteFromPanier(product.product._id)
+                            }
                             type="button"
                             className="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500"
                           >
@@ -154,8 +181,8 @@ export const Cart = ({ cart, setCart }) => {
                     </dt>
                     <dd className="text-base font-medium text-gray-900 dark:text-white">
                       $
-                      {cart.reduce(
-                        (acc, el) => acc + el.quantity * el.price,
+                      {panier.reduce(
+                        (acc, el) => acc + el.quantity * el.product.price,
                         0
                       )}
                     </dd>
@@ -167,8 +194,8 @@ export const Cart = ({ cart, setCart }) => {
                     </dt>
                     <dd className="text-base font-medium text-gray-900 dark:text-white">
                       $
-                      {cart.reduce(
-                        (acc, el) => acc + el.quantity * el.price,
+                      {panier.reduce(
+                        (acc, el) => acc + el.quantity * el.product.price,
                         0
                       ) * 0.002}
                     </dd>
@@ -179,8 +206,8 @@ export const Cart = ({ cart, setCart }) => {
                     </dt>
                     <dd className="text-base font-medium text-gray-900 dark:text-white">
                       $
-                      {cart.reduce(
-                        (acc, el) => acc + el.quantity * el.price,
+                      {panier.reduce(
+                        (acc, el) => acc + el.quantity * el.product.price,
                         0
                       ) * 0.01}
                     </dd>
@@ -192,9 +219,12 @@ export const Cart = ({ cart, setCart }) => {
                   </dt>
                   <dd className="text-base font-bold text-gray-900 dark:text-white">
                     $
-                    {cart.reduce((acc, el) => acc + el.quantity * el.price, 0) +
-                      cart.reduce(
-                        (acc, el) => acc + el.quantity * el.price,
+                    {panier.reduce(
+                      (acc, el) => acc + el.quantity * el.product.price,
+                      0
+                    ) +
+                      panier.reduce(
+                        (acc, el) => acc + el.quantity * el.product.price,
                         0
                       ) *
                         0.012}

@@ -18,7 +18,7 @@ function SignUp() {
 
   //always use (e) whenever u r using a form
   const handleRegister = async (e) => {
-    e.preventDefault(); // to prevent the default action og yhe form
+    e.preventDefault(); // to prevent the default action of the form
     try {
       if (
         !newUser.name ||

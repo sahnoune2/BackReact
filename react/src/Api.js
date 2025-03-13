@@ -4,7 +4,7 @@ const apiUrl = "http://localhost:5000";
 export const getProducts = async () => {
   try {
     const response = await axios.get(apiUrl + "/list");
-    console.log(response.data);
+    console.log("my response is :", response.data);
     return response.data.allProducts;
   } catch (error) {
     console.log("error");
@@ -26,18 +26,18 @@ export const getOneProduct = async ({ params }) => {
   }
 };
 
-
-// this one to get the current user logged in 
+// this one to get the current user logged in
 export const getCurrent = async () => {
-  
-  const config = {
-    headers: {
-      token: localStorage.getItem("token"),
-    },
-  };
+  // const config = {
+  //   headers: {
+  //     token: localStorage.getItem("token"),
+  //   },
+  // }; LOCALSTORAGE
 
   try {
-    const response = await axios.get(`${apiUrl}/auth`, config);
+    const response = await axios.get(`${apiUrl}/auth`, {
+      withCredentials: true,
+    }); 
     console.log(response);
     if (response.status === 200) {
       return response.data.user;
@@ -47,3 +47,7 @@ export const getCurrent = async () => {
     return null;
   }
 };
+
+
+
+

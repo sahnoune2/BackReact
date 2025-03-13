@@ -86,7 +86,12 @@ exports.signUp = async (req, res) => {
         );
         await newuser.save();
         await codes.deleteOne({ email: userfound.email });
-        res.status(200).send({ msg: "welcome", user: newuser, token });
+        res.cookie("token", token, {
+          httpOnly: true,
+          maxAge: 1000 * 60 * 60 * 24 * 7,
+        }); 
+        res.status(200).send({ msg: "welcome", user: newuser });
+        // res.status(200).send({ msg: "welcome", user: newuser, token });
       }
     } else {
       res.status(400).send({ msg: "code incorrect" });
@@ -115,13 +120,24 @@ exports.signIn = async (req, res) => {
           "abc123",
           { expiresIn: "7d" }
         );
-        res.status(200).send({ msg: "login success", user: userFound, token });
+
+        res.cookie("token", token, {
+          httpOnly: true,
+          maxAge: 1000 * 60 * 60 * 24 * 7,
+        }); 
+        res.status(200).send({ msg: "login success", user: userFound });
+        // res.status(200).send({ msg: "login success", user: userFound, token }); this one for localstorage use and not cookies
       }
     }
   } catch (error) {
     res.status(500).send({ msg: "error while trying to signIn" });
   }
 };
+
+exports.logOut = (req, res) => {
+  res.clearCookie("token", { httpOnly: true, secure: true });
+  res.status(200).send({ msg: "logged out cookies" });
+}; 
 
 exports.getCurrent = (req, res) => {
   const user = req.user;

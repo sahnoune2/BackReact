@@ -1,15 +1,16 @@
 import { GiShoppingCart } from "react-icons/gi";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Link, useLoaderData, useParams } from "react-router-dom";
+import { Link, useLoaderData, useParams, useRevalidator } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function SingleProduct({ cart, setCart }) {
-  
-  
   const [count, setCount] = useState(1);
-  const {productFound,image} = useLoaderData()
+  const { productFound, image } = useLoaderData();
   console.log("singleproduct productfound testing:", productFound);
   const [impagep, setImage] = useState(image);
+  const apiUrl = "http://localhost:5000";
+  const {revalidate}=useRevalidator()
 
   const increment = () => {
     setCount(count + 1);
@@ -19,14 +20,35 @@ function SingleProduct({ cart, setCart }) {
       setCount(count - 1);
     }
   };
-  const pushCart = () => {
-    const found = cart.some((el) => el.id === productFound[0].id);
-    if (!found) {
-      cart.push(productFound[0]);
-      setCart(cart);
-      console.log(" cart state:", cart);
-    } else {
-      console.log("product already exixts ");
+  // const pushCart = () => {
+  //   const found = cart.some((el) => el.id === productFound[0].id);
+  //   if (!found) {
+  //     cart.push(productFound[0]);
+  //     setCart(cart);
+  //     console.log(" cart state:", cart);
+  //   } else {
+  //     console.log("product already exixts ");
+  //   }
+  // };
+
+  const addToCart = async () => {
+    try {
+      const response = await axios.post(
+        `${apiUrl}/addPanier`,
+        {
+          productID: productFound._id,
+          quantity: count,
+        },
+        { withCredentials: true }
+      );
+
+      console.log(response);
+      if (response.status === 200) {
+        toast.success("product added to cart ");
+        revalidate()
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -127,9 +149,10 @@ function SingleProduct({ cart, setCart }) {
                 +
               </button>
             </div>
-            <div onClick={pushCart}>
+            <div>
               <button
-                href="#"
+
+                onClick={addToCart}
                 className="  inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               >
                 Add to cart
