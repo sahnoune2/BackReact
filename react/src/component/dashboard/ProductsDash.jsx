@@ -75,6 +75,7 @@ function ProductsDash({ cart, setCart }) {
                         <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
                           Price :${product.price}
                         </div>
+                        <Link to={"/admin/edit/" + product._id}>edit</Link>
                         <Modals revalidate={revalidate} id={product._id} />
                       </div>
                     </li>

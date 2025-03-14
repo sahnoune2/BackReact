@@ -1,13 +1,211 @@
 import axios from "axios";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { CiTrash } from "react-icons/ci";
 import { Link, useLoaderData, useRevalidator } from "react-router-dom";
 import { toast } from "react-toastify";
+const apiUrl = "http://localhost:5000";
+
+function TR({ count, product, total, setTotal, revalidate, panier, key }) {
+  const [quantity, setQuantity] = useState(count);
+  const [newPanier, setPanier] = useState(panier);
+
+  const deleteFromPanier = async (id) => {
+    console.log(id);
+    setPanier(newPanier.filter((el) => el.product._id !== id));
+    try {
+      const response = await axios.delete(
+        `${apiUrl}/deleteOne/${id}`,
+
+        { withCredentials: true }
+      );
+      console.log(response);
+      if (response.status === 200) {
+        revalidate();
+        toast.success("product deleted successfully from panier");
+
+        setTotal(
+          newPanier.reduce((acc, el) => acc + el.product.price * el.quantity, 0)
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <div key={key} className="mx-auto w-full   lg:max-w-2xl xl:max-w-4xl">
+      <div className="space-y-6  ">
+        <div className="rounded-lg border w-[100%] border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 md:p-6">
+          <div className="space-y-4 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
+            <Link to={"/prod/" + product.id}>
+              <img
+                className="h-20 w-20 dark:hidden"
+                src={product.images[0]}
+                alt="imac image"
+              />
+            </Link>
+
+            <div className="flex items-center justify-between md:order-3 md:justify-end">
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  id="decrement-button"
+                  onClick={() => {
+                    if (quantity > 1) {
+                      setQuantity(quantity - 1);
+                      setTotal(total - product.price);
+                    }
+                  }}
+                  data-input-counter-decrement="counter-input"
+                  className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+                >
+                  <svg
+                    className="h-2.5 w-2.5 text-gray-900 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 18 2"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M1 1h16"
+                    />
+                  </svg>
+                </button>
+                <span>
+                  {" "}
+                  <input
+                    type="text"
+                    id="counter-input"
+                    data-input-counter=""
+                    className="w-10 shrink-0 border-0 bg-transparent text-center text-sm font-medium text-gray-900 focus:outline-none focus:ring-0 dark:text-white"
+                    placeholder=""
+                    value={quantity}
+                    required=""
+                  />
+                </span>
+                <button
+                  onClick={() => {
+                    setQuantity(quantity + 1);
+                    setTotal(total + product.price);
+                  }}
+                  type="button"
+                  id="increment-button"
+                  data-input-counter-increment="counter-input"
+                  className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+                >
+                  <svg
+                    className="h-2.5 w-2.5 text-gray-900 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 18 18"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 1v16M1 9h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div className="text-end md:order-4 md:w-32">
+                <p className="text-base font-bold text-gray-900 dark:text-white">
+                  ${product.price * quantity}
+                </p>
+              </div>
+            </div>
+            <div className="w-full min-w-0 flex-1 space-y-4 md:order-2 md:max-w-md">
+              <a
+                href="#"
+                className="text-base font-medium text-gray-900 hover:underline dark:text-white"
+              >
+                {product.title}
+              </a>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => deleteFromPanier(product._id)}
+                  type="button"
+                  className="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500"
+                >
+                  <svg
+                    className="me-1.5 h-5 w-5"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={24}
+                    height={24}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18 17.94 6M18 18 6.06 6"
+                    />
+                  </svg>
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export const Cart = ({ cart, setCart }) => {
   const { panier } = useLoaderData();
-  const apiUrl = "http://localhost:5000";
   const { revalidate } = useRevalidator();
+  const [total, setTotal] = useState(0);
+  const [method, setMethod] = useState(1);
+  const [loading, setLoading] = useState(false);
+  console.log(typeof method);
+
+  useEffect(() => {
+    setTotal(
+      panier.reduce((acc, el) => acc + el.quantity * el.product.price, 0)
+    );
+  }, [panier]);
+
+  const createOrder = async () => {
+    setLoading(true);
+    try {
+      if (panier.length === 0 || method === null) {
+        toast.error("ur panier is empty or choose ur payment method");
+      } else if (method == 2) {
+        const response = await axios.post(
+          `${apiUrl}/addOrder`,
+          { panier },
+          { withCredentials: true }
+        );
+        if (response.status === 200) {
+          await axios.delete(`${apiUrl}/deleteAll`, { withCredentials: true });
+          revalidate();
+          toast.success("order has been created,wait for confirmation");
+        }
+      } else {
+        const response = await axios.post(`${apiUrl}/payment`, { panier });
+
+        if (response.status === 200) {
+          window.location.href = response.data.url;
+          await axios.delete(`${apiUrl}/deleteAll`, { withCredentials: true });
+        }
+      }
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      toast.error("sth went wrong while creating ur order");
+      console.log(error);
+    }
+  };
 
   // useEffect(() => {
   //   console.log("Cart component: Received cart:", cart);
@@ -19,24 +217,6 @@ export const Cart = ({ cart, setCart }) => {
   //   setCart(updated);
   // };
 
-  const deleteFromPanier = async (id) => {
-    console.log(id);
-    try {
-      const response = await axios.delete(
-        `${apiUrl}/deleteOne/${id}`,
-
-        { withCredentials: true }
-      );
-      console.log(response);
-      if (response.status === 200) {
-        toast.success("product deleted successfully from panier");
-        revalidate();
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   return (
     <section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
       <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
@@ -46,125 +226,16 @@ export const Cart = ({ cart, setCart }) => {
 
         <div className="mt-6 sm:mt-8 md:gap-6  lg:flex lg:items-start xl:gap-8 ">
           <div style={{ width: "70%" }}>
-            {panier.map((product, index) => (
-              <div className="mx-auto w-full   lg:max-w-2xl xl:max-w-4xl">
-                <div className="space-y-6  ">
-                  <div className="rounded-lg border w-[100%] border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 md:p-6">
-                    <div className="space-y-4 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
-                      <Link to={"/prod/" + product.id}>
-                        <img
-                          className="h-20 w-20 dark:hidden"
-                          src={product.product.images[0]}
-                          alt="imac image"
-                        />
-                      </Link>
-
-                      <div className="flex items-center justify-between md:order-3 md:justify-end">
-                        <div className="flex items-center">
-                          {/* <button
-                            type="button"
-                            id="decrement-button"
-                            data-input-counter-decrement="counter-input"
-                            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
-                          >
-                            <svg
-                              className="h-2.5 w-2.5 text-gray-900 dark:text-white"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 18 2"
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M1 1h16"
-                              />
-                            </svg>
-                          </button> */}
-                          <span>
-                            {" "}
-                            Quantity:
-                            <input
-                              type="text"
-                              id="counter-input"
-                              data-input-counter=""
-                              className="w-10 shrink-0 border-0 bg-transparent text-center text-sm font-medium text-gray-900 focus:outline-none focus:ring-0 dark:text-white"
-                              placeholder=""
-                              defaultValue={product.quantity}
-                              required=""
-                            />
-                          </span>
-                          {/* <button
-                            type="button"
-                            id="increment-button"
-                            data-input-counter-increment="counter-input"
-                            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
-                          >
-                            <svg
-                              className="h-2.5 w-2.5 text-gray-900 dark:text-white"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 18 18"
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 1v16M1 9h16"
-                              />
-                            </svg>
-                          </button> */}
-                        </div>
-                        <div className="text-end md:order-4 md:w-32">
-                          <p className="text-base font-bold text-gray-900 dark:text-white">
-                            ${product.product.price * product.quantity}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="w-full min-w-0 flex-1 space-y-4 md:order-2 md:max-w-md">
-                        <a
-                          href="#"
-                          className="text-base font-medium text-gray-900 hover:underline dark:text-white"
-                        >
-                          {product.product.title}
-                        </a>
-                        <div className="flex items-center gap-4">
-                          <button
-                            onClick={() =>
-                              deleteFromPanier(product.product._id)
-                            }
-                            type="button"
-                            className="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500"
-                          >
-                            <svg
-                              className="me-1.5 h-5 w-5"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width={24}
-                              height={24}
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18 17.94 6M18 18 6.06 6"
-                              />
-                            </svg>
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {panier.map((el, index) => (
+              <TR
+                key={el.product._id}
+                count={el.quantity}
+                product={el.product}
+                setTotal={setTotal}
+                total={total}
+                revalidate={revalidate}
+                panier={panier}
+              />
             ))}
           </div>
 
@@ -180,11 +251,7 @@ export const Cart = ({ cart, setCart }) => {
                       Original price
                     </dt>
                     <dd className="text-base font-medium text-gray-900 dark:text-white">
-                      $
-                      {panier.reduce(
-                        (acc, el) => acc + el.quantity * el.product.price,
-                        0
-                      )}
+                      ${total}
                     </dd>
                   </dl>
 
@@ -193,11 +260,7 @@ export const Cart = ({ cart, setCart }) => {
                       Store Pickup
                     </dt>
                     <dd className="text-base font-medium text-gray-900 dark:text-white">
-                      $
-                      {panier.reduce(
-                        (acc, el) => acc + el.quantity * el.product.price,
-                        0
-                      ) * 0.002}
+                      ${total * 0.002}
                     </dd>
                   </dl>
                   <dl className="flex items-center justify-between gap-4">
@@ -205,11 +268,7 @@ export const Cart = ({ cart, setCart }) => {
                       Tax
                     </dt>
                     <dd className="text-base font-medium text-gray-900 dark:text-white">
-                      $
-                      {panier.reduce(
-                        (acc, el) => acc + el.quantity * el.product.price,
-                        0
-                      ) * 0.01}
+                      ${total * 0.01}
                     </dd>
                   </dl>
                 </div>
@@ -218,25 +277,27 @@ export const Cart = ({ cart, setCart }) => {
                     Total
                   </dt>
                   <dd className="text-base font-bold text-gray-900 dark:text-white">
-                    $
-                    {panier.reduce(
-                      (acc, el) => acc + el.quantity * el.product.price,
-                      0
-                    ) +
-                      panier.reduce(
-                        (acc, el) => acc + el.quantity * el.product.price,
-                        0
-                      ) *
-                        0.012}
+                    ${total}
                   </dd>
                 </dl>
               </div>
-              <a
-                href="#"
-                className="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+              <div>
+                <span>select ur payment method</span>
+                <select
+                  defaultValue={1}
+                  onChange={(e) => setMethod(e.target.value)}
+                >
+                  <option value={1}>with credit card </option>
+                  <option value={2}> delivery</option>
+                </select>
+              </div>
+              <button
+                disabled={loading}
+                onClick={createOrder}
+                className="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-black hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
-                Proceed to Checkout
-              </a>
+                {loading ? "processing...." : "Proceed to Checkout"}
+              </button>
               <div className="flex items-center justify-center gap-2">
                 <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
                   {" "}

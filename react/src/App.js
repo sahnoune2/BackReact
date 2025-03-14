@@ -30,6 +30,9 @@ import { ToastContainer } from "react-toastify";
 import Animation from "./component/Animation";
 import { ValidationCode } from "./component/ValidationCode";
 import { ProtectedRoute } from "./component/ProtectedRoute";
+import { SuccessPayment } from "./component/SuccessPayment";
+import { FailedPayment } from "./component/FailedPayment";
+import { EditProduct } from "./component/dashboard/EditProduct";
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -53,6 +56,8 @@ function App() {
       children: [
         { path: "/", element: <Hero /> },
         { path: "/code", element: <ValidationCode /> },
+        { path: "/success", element: <SuccessPayment /> },
+        { path: "/cancel", element: <FailedPayment /> },
         { path: "/about", element: <About /> },
         { path: "/cards", element: <Animation />, loader: getProducts },
         { path: "contact", element: <Contact /> },
@@ -86,6 +91,11 @@ function App() {
             {
               path: "/admin/form",
               element: <FormProduct list={list} setList={setList} />,
+            },
+            {
+              path: "/admin/edit/:id",
+              element: <EditProduct />,
+              loader: getOneProduct,
             },
           ],
         },

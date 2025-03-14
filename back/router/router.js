@@ -26,6 +26,7 @@ const {
   updateQuantity,
 } = require("../control/productControl");
 const isAuthAdmin = require("../middleWare/isAuthAdmin");
+const { payment } = require("../control/payment");
 
 const userRouter = express.Router();
 const productRouter = express.Router();
@@ -46,5 +47,6 @@ productRouter.post("/addOrder", isAuth, addOrder);
 productRouter.delete("/deleteOne/:productID", isAuth, removeFromPanier);
 productRouter.delete("/deleteAll", isAuth, clearPanier);
 productRouter.put("/updateQuantity", updateQuantity);
+productRouter.post("/payment", payment);
 
 module.exports = { userRouter, productRouter };

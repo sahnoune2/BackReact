@@ -80,7 +80,7 @@ const addPanier = async (req, res) => {
 };
 
 const addOrder = async (req, res) => {
-  const { userID, panier } = req.body;
+  const { panier } = req.body;
   try {
     for (let item of panier) {
       console.log(item);
@@ -99,11 +99,11 @@ const addOrder = async (req, res) => {
       }
     }
 
-    const order = new orders({ userID, panier });
-    const userFound = await users.findById(userID);
+    const userFound = req.user;
     if (!userFound) {
       return res.status(400).send({ msg: "User is not found" });
     } else {
+      const order = new orders({ userID: userFound._id, panier });
       await order.save();
       await order.populate("userID");
 
@@ -137,16 +137,10 @@ const removeFromPanier = async (req, res) => {
 };
 
 const clearPanier = async (req, res) => {
-  const { userID } = req.body;
-
   try {
-    const userFound = await users.findById(userID);
-    if (!userFound) {
-      return res.status(400).send({ msg: "User not found" });
-    }
-
-    await users.updateOne({ _id: userID }, { $set: { panier: [] } });
-
+    const userFound = req.user;
+    userFound.panier = [];
+    await userFound.save();
     res.status(200).send({ msg: "Panier cleared successfully" });
   } catch (error) {
     res.status(500).send({ msg: "Error while clearing panier", error });
