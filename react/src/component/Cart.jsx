@@ -183,7 +183,7 @@ export const Cart = ({ cart, setCart }) => {
       } else if (method == 2) {
         const response = await axios.post(
           `${apiUrl}/addOrder`,
-          { panier },
+          { panier, total },
           { withCredentials: true }
         );
         if (response.status === 200) {

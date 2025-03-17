@@ -127,3 +127,7 @@ th {
     -webkit-mask-size: 0 18px, 0 18px, 0 18px, auto;
   }
 }
+tr,td{
+
+  border: 1px solid white;
+}

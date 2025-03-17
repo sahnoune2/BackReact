@@ -80,7 +80,7 @@ const addPanier = async (req, res) => {
 };
 
 const addOrder = async (req, res) => {
-  const { panier } = req.body;
+  const { panier ,total} = req.body;
   try {
     for (let item of panier) {
       console.log(item);
@@ -103,7 +103,7 @@ const addOrder = async (req, res) => {
     if (!userFound) {
       return res.status(400).send({ msg: "User is not found" });
     } else {
-      const order = new orders({ userID: userFound._id, panier });
+      const order = new orders({ userID: userFound._id, panier,total });
       await order.save();
       await order.populate("userID");
 
@@ -114,6 +114,15 @@ const addOrder = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({ msg: "Error while populating the order" });
+  }
+};
+
+const getOrder = async (req, res) => {
+  try {
+    const allOrders = await orders.find().populate("userID panier.product");
+    res.status(200).send({ msg: "all orders r here", orders: allOrders });
+  } catch (error) {
+    res.status(500).send({ msg: "error while trying to get ur orders" });
   }
 };
 const removeFromPanier = async (req, res) => {
@@ -174,4 +183,5 @@ module.exports = {
   removeFromPanier,
   clearPanier,
   updateQuantity,
+  getOrder,
 };

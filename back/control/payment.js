@@ -34,4 +34,16 @@ const payment = async (req, res) => {
   }
 };
 
-module.exports = { payment };
+const getPaymentList = async (req, res) => {
+  try {
+    const list = await Stripe.charges.list();
+
+    res.status(200).send({ msg: "ur payment list is here", list });
+  } catch (error) {
+    res
+      .status(500)
+      .send({ msg: "error while trying to get stripe list ", error: error });
+  }
+};
+
+module.exports = { payment, getPaymentList };

@@ -37,7 +37,7 @@ export const getCurrent = async () => {
   try {
     const response = await axios.get(`${apiUrl}/auth`, {
       withCredentials: true,
-    }); 
+    });
     console.log(response);
     if (response.status === 200) {
       return response.data.user;
@@ -48,6 +48,18 @@ export const getCurrent = async () => {
   }
 };
 
-
-
-
+export const getOrders = async () => {
+  try {
+    const response = await axios.get(apiUrl + "/getOrders", {
+      withCredentials: true,
+    });
+    const res2 = await axios.get(apiUrl + "/getPayment", {
+      withCredentials: true,
+    });
+    console.log("my response is :", response.data);
+    return { delivery: response.data.orders, online: res2.data.list };
+  } catch (error) {
+    console.log("error", error);
+    throw error;
+  }
+};

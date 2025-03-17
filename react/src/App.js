@@ -25,7 +25,7 @@ import { Cart } from "./component/Cart";
 import ListProducts from "./component/ListProducts";
 import { FormProduct } from "./component/dashboard/FormProduct";
 import axios from "axios";
-import { getCurrent, getOneProduct, getProducts } from "./Api";
+import { getCurrent, getOneProduct, getOrders, getProducts } from "./Api";
 import { ToastContainer } from "react-toastify";
 import Animation from "./component/Animation";
 import { ValidationCode } from "./component/ValidationCode";
@@ -33,6 +33,7 @@ import { ProtectedRoute } from "./component/ProtectedRoute";
 import { SuccessPayment } from "./component/SuccessPayment";
 import { FailedPayment } from "./component/FailedPayment";
 import { EditProduct } from "./component/dashboard/EditProduct";
+import { Orders } from "./component/dashboard/Orders";
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -97,6 +98,7 @@ function App() {
               element: <EditProduct />,
               loader: getOneProduct,
             },
+            { path: "/admin/orders", element: <Orders />, loader: getOrders },
           ],
         },
       ],
